@@ -25,10 +25,7 @@ type BlogPost struct {
 }
 
 func fnConnectMongoDB() (*mongo.Client, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
+	godotenv.Load()
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
 		log.Fatal(err)

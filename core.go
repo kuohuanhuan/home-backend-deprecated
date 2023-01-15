@@ -67,5 +67,5 @@ func fnServer() {
 		oPost.Content = strings.Trim(oPost.Content, "\n")
 		return c.JSON(oPost)
 	})
-	app.Listen(":3000")
+	app.Listen(":80")
 }
