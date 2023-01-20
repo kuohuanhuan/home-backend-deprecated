@@ -18,7 +18,7 @@ type BlogPost struct {
 	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id"`
 	FileName string             `bson:"fileName"`
 	Title    string             `bson:"title"`
-	Date     string             `bson:"date"`
+	DateTime string             `bson:"dateTime"`
 	Tags     string             `bson:"tags"`
 	Views    int32              `bson:"views"`
 	Content  string             `bson:"content"`
