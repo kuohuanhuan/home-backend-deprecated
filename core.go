@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func fnServer() {
@@ -32,6 +33,7 @@ func fnServer() {
 		}
 		return nil
 	})
+	app.Use(cors.New())
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World! System is running.")
 	})
