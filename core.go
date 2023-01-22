@@ -65,7 +65,11 @@ func fnServer() {
 				"message": "The requested URL was not found on this server. That's all we know.",
 			})
 		}
-		fnUpdateView(client, c.Params("file"), c.IP())
+		var sIP string = c.Get("X-Forwarded-For")
+		if sIP == "" {
+			sIP = c.IP()
+		}
+		fnUpdateView(client, c.Params("file"), sIP)
 		oPost.Content = strings.Replace(oPost.Content, "\r\n", "\n", -1)
 		oPost.Content = strings.Trim(oPost.Content, "\n")
 		return c.JSON(struct {
