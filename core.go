@@ -41,12 +41,21 @@ func fnServer() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		arrNewPosts := make([]BlogPost, len(arrPosts))
 		for i, oPost := range arrPosts {
 			oPost.Content = strings.Replace(oPost.Content, "\r\n", "\n", -1)
 			oPost.Content = strings.Trim(oPost.Content, "\n")
-			arrPosts[i] = oPost
+			arrNewPosts[i] = BlogPost{
+				ID:       oPost.ID,
+				FileName: oPost.FileName,
+				Title:    oPost.Title,
+				DateTime: oPost.DateTime,
+				Tags:     oPost.Tags,
+				Content:  oPost.Content,
+				Views:    oPost.Views,
+			}
 		}
-		return c.JSON(arrPosts)
+		return c.JSON(arrNewPosts)
 	})
 	app.Get("/post/:file", func(c *fiber.Ctx) error {
 		oPost, err := fnGetPost(client, c.Params("file"))
@@ -59,7 +68,10 @@ func fnServer() {
 		fnUpdateView(client, c.Params("file"), c.IP())
 		oPost.Content = strings.Replace(oPost.Content, "\r\n", "\n", -1)
 		oPost.Content = strings.Trim(oPost.Content, "\n")
-		return c.JSON(oPost)
+		return c.JSON(struct {
+			BlogPost
+			ViewIPs []string `json:"viewIPs,omitempty" bson:"viewIPs"`
+		}{BlogPost: *oPost})
 	})
 	app.Listen(":80")
 }

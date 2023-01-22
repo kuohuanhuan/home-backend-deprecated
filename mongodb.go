@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"math/rand"
 	"os"
 	"time"
 
@@ -21,7 +20,7 @@ type BlogPost struct {
 	DateTime string             `bson:"dateTime"`
 	Tags     string             `bson:"tags"`
 	Views    int32              `bson:"views"`
-	ViewIPs  []viewIP           `bson:"viewIPs"`
+	ViewIPs  []viewIP           `json:"viewIPs,omitempty" bson:"viewIPs"`
 	Content  string             `bson:"content"`
 }
 
@@ -73,23 +72,13 @@ func fnGetPost(client *mongo.Client, fileName string) (*BlogPost, error) {
 	return &oPost, nil
 }
 
-func hasViewedRecently(viewIPs []viewIP, ip string) bool {
+func fnHasViewedRecently(viewIPs []viewIP, ip string) bool {
 	for _, v := range viewIPs {
 		if v.IP == ip && time.Since(v.Timestamp) < 24*time.Hour {
 			return true
 		}
 	}
 	return false
-}
-
-func bk_fnUpdateView(client *mongo.Client, fileName string) {
-	coll := client.Database("general").Collection("blogPosts")
-	rand.Seed(time.Now().UnixNano())
-	filter := bson.M{"fileName": fileName}
-	_, err := coll.UpdateOne(context.TODO(), filter, bson.M{"$inc": bson.M{"views": 1}})
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func fnUpdateView(client *mongo.Client, fileName string, ip string) {
@@ -99,7 +88,7 @@ func fnUpdateView(client *mongo.Client, fileName string, ip string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if !hasViewedRecently(oPost.ViewIPs, ip) {
+	if !fnHasViewedRecently(oPost.ViewIPs, ip) {
 		filter := bson.M{"fileName": fileName}
 		update := bson.M{
 			"$inc":  bson.M{"views": 1},
