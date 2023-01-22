@@ -21,7 +21,13 @@ type BlogPost struct {
 	DateTime string             `bson:"dateTime"`
 	Tags     string             `bson:"tags"`
 	Views    int32              `bson:"views"`
+	ViewIPs  []viewIP           `bson:"viewIPs"`
 	Content  string             `bson:"content"`
+}
+
+type viewIP struct {
+	IP        string    `bson:"ip"`
+	Timestamp time.Time `bson:"timestamp"`
 }
 
 func fnConnectMongoDB() (*mongo.Client, error) {
@@ -58,21 +64,50 @@ func fnGetAllPosts(c *mongo.Client) ([]BlogPost, error) {
 
 func fnGetPost(client *mongo.Client, fileName string) (*BlogPost, error) {
 	coll := client.Database("general").Collection("blogPosts")
-	var blogPost BlogPost
+	var oPost BlogPost
 	filter := bson.M{"fileName": fileName}
-	err := coll.FindOne(context.TODO(), filter).Decode(&blogPost)
+	err := coll.FindOne(context.TODO(), filter).Decode(&oPost)
 	if err != nil {
 		return nil, err
 	}
-	return &blogPost, nil
+	return &oPost, nil
 }
 
-func fnUpdateView(client *mongo.Client, fileName string) {
+func hasViewedRecently(viewIPs []viewIP, ip string) bool {
+	for _, v := range viewIPs {
+		if v.IP == ip && time.Since(v.Timestamp) < 24*time.Hour {
+			return true
+		}
+	}
+	return false
+}
+
+func bk_fnUpdateView(client *mongo.Client, fileName string) {
 	coll := client.Database("general").Collection("blogPosts")
 	rand.Seed(time.Now().UnixNano())
 	filter := bson.M{"fileName": fileName}
 	_, err := coll.UpdateOne(context.TODO(), filter, bson.M{"$inc": bson.M{"views": 1}})
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func fnUpdateView(client *mongo.Client, fileName string, ip string) {
+	coll := client.Database("general").Collection("blogPosts")
+	var oPost BlogPost
+	err := coll.FindOne(context.TODO(), bson.M{"fileName": fileName}).Decode(&oPost)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !hasViewedRecently(oPost.ViewIPs, ip) {
+		filter := bson.M{"fileName": fileName}
+		update := bson.M{
+			"$inc":  bson.M{"views": 1},
+			"$push": bson.M{"viewIPs": bson.M{"ip": ip, "timestamp": time.Now()}},
+		}
+		_, err := coll.UpdateOne(context.TODO(), filter, update)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }

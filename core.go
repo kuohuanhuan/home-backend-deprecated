@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -50,14 +49,6 @@ func fnServer() {
 		return c.JSON(arrPosts)
 	})
 	app.Get("/post/:file", func(c *fiber.Ctx) error {
-		if c.Cookies(c.Params("file")) == "" {
-			c.Cookie(&fiber.Cookie{
-				Name:    c.Params("file"),
-				Value:   "You have viewed this post in 24hrs :3",
-				Expires: time.Now().Add(24 * time.Hour),
-			})
-			fnUpdateView(client, c.Params("file"))
-		}
 		oPost, err := fnGetPost(client, c.Params("file"))
 		if err != nil {
 			return c.Status(404).JSON(fiber.Map{
@@ -65,6 +56,7 @@ func fnServer() {
 				"message": "The requested URL was not found on this server. That's all we know.",
 			})
 		}
+		fnUpdateView(client, c.Params("file"), c.IP())
 		oPost.Content = strings.Replace(oPost.Content, "\r\n", "\n", -1)
 		oPost.Content = strings.Trim(oPost.Content, "\n")
 		return c.JSON(oPost)
