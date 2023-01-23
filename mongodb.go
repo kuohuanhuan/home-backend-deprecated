@@ -14,14 +14,15 @@ import (
 )
 
 type BlogPost struct {
-	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id"`
-	FileName string             `bson:"fileName"`
-	Title    string             `bson:"title"`
-	DateTime string             `bson:"dateTime"`
-	Tags     string             `bson:"tags"`
-	Views    int32              `bson:"views"`
-	ViewIPs  []viewIP           `json:"viewIPs,omitempty" bson:"viewIPs"`
-	Content  string             `bson:"content"`
+	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id"`
+	FileName    string             `bson:"fileName"`
+	Title       string             `bson:"title"`
+	DateTime    string             `bson:"dateTime"`
+	Tags        string             `bson:"tags"`
+	Views       int32              `bson:"views"`
+	ViewIPs     []viewIP           `json:"viewIPs,omitempty" bson:"viewIPs"`
+	Content     string             `bson:"content"`
+	Description string             `bson:"description"`
 }
 
 type viewIP struct {
