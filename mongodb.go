@@ -15,10 +15,10 @@ import (
 
 type BlogPost struct {
 	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id"`
-	FileName    string             `bson:"fileName"`
+	FileName    string             `bson:"filename"`
 	Title       string             `bson:"title"`
-	DateTime    string             `bson:"dateTime"`
-	Tags        string             `bson:"tags"`
+	DateTime    string             `bson:"datetime"`
+	Tags        []string           `bson:"tags"`
 	Views       int32              `bson:"views"`
 	ViewIPs     []viewIP           `json:"viewIPs,omitempty" bson:"viewIPs"`
 	Content     string             `bson:"content"`
@@ -65,7 +65,7 @@ func fnGetAllPosts(c *mongo.Client) ([]BlogPost, error) {
 func fnGetPost(client *mongo.Client, fileName string) (*BlogPost, error) {
 	coll := client.Database("general").Collection("blogPosts")
 	var oPost BlogPost
-	filter := bson.M{"fileName": fileName}
+	filter := bson.M{"filename": fileName}
 	err := coll.FindOne(context.TODO(), filter).Decode(&oPost)
 	if err != nil {
 		return nil, err
@@ -85,12 +85,12 @@ func fnHasViewedRecently(viewIPs []viewIP, ip string) bool {
 func fnUpdateView(client *mongo.Client, fileName string, ip string) {
 	coll := client.Database("general").Collection("blogPosts")
 	var oPost BlogPost
-	err := coll.FindOne(context.TODO(), bson.M{"fileName": fileName}).Decode(&oPost)
+	err := coll.FindOne(context.TODO(), bson.M{"filename": fileName}).Decode(&oPost)
 	if err != nil {
 		log.Fatal(err)
 	}
 	if !fnHasViewedRecently(oPost.ViewIPs, ip) {
-		filter := bson.M{"fileName": fileName}
+		filter := bson.M{"filename": fileName}
 		update := bson.M{
 			"$inc":  bson.M{"views": 1},
 			"$push": bson.M{"viewIPs": bson.M{"ip": ip, "timestamp": time.Now()}},
