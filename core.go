@@ -61,9 +61,9 @@ func fnServer() {
 	app.Get("/post/:file", func(c *fiber.Ctx) error {
 		oPost, err := fnGetPost(client, c.Params("file"))
 		if err != nil {
-			return c.Status(404).JSON(fiber.Map{
-				"error":   "Not Found",
-				"message": "The requested URL was not found on this server. That's all we know.",
+			return c.Status(500).JSON(fiber.Map{
+				"error":   "Internal Server Error",
+				"message": "An error occurred while processing your request. That's not your fault.",
 			})
 		}
 		var sIP string = c.Get("X-Forwarded-For")
