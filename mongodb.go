@@ -46,7 +46,7 @@ func fnConnectMongoDB() (*mongo.Client, error) {
 func fnGetAllPosts(c *mongo.Client) ([]BlogPost, error) {
 	var arrPosts []BlogPost
 	coll := c.Database("general").Collection("blogPosts")
-	cur, err := coll.Find(context.TODO(), bson.M{})
+	cur, err := coll.Find(context.TODO(), bson.M{}, options.Find().SetSort(bson.D{{"datetime", -1}}))
 	if err != nil {
 		log.Fatal(err)
 	}
