@@ -51,7 +51,6 @@ func fnServer() {
 				Title:       oPost.Title,
 				DateTime:    oPost.DateTime,
 				Tags:        oPost.Tags,
-				Content:     oPost.Content,
 				Description: oPost.Description,
 				Views:       oPost.Views,
 			}
