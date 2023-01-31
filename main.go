@@ -70,7 +70,6 @@ func main() {
 			sIP = c.IP()
 		}
 		fnUpdateView(client, c.Params("file"), sIP)
-		oPost.Content = strings.Replace(oPost.Content, "\r\n", "\n", -1)
 		oPost.Content = strings.Trim(oPost.Content, "\n")
 		return c.JSON(struct {
 			BlogPost
